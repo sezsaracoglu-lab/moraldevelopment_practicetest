@@ -1,0 +1,1182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>🧠 Moral Development — EUR Straight-A Challenge</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #0f0e0c;
+    --card: #1d1b17;
+    --card2: #252319;
+    --gold: #c9a96e;
+    --gold-dim: rgba(201,169,110,0.15);
+    --gold-glow: rgba(201,169,110,0.35);
+    --green: #4caf82;
+    --green-bg: rgba(76,175,130,0.12);
+    --red: #d95f5f;
+    --red-bg: rgba(217,95,95,0.12);
+    --text: #e8e0d0;
+    --muted: #8a8070;
+    --border: rgba(201,169,110,0.18);
+    --theory: #7b9ec9;
+    --methods: #b07bc9;
+    --application: #c9926e;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    background-image:
+      radial-gradient(ellipse 80% 50% at 50% -20%, rgba(201,169,110,0.06) 0%, transparent 70%),
+      repeating-linear-gradient(0deg, transparent, transparent 60px, rgba(201,169,110,0.015) 60px, rgba(201,169,110,0.015) 61px);
+  }
+
+  /* ── STICKY HEADER ── */
+  #sticky-header {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    background: rgba(15,14,12,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 10px 24px;
+  }
+  #header-inner {
+    max-width: 860px; margin: 0 auto;
+    display: flex; align-items: center; gap: 16px;
+  }
+  #progress-wrap {
+    flex: 1;
+    height: 5px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  #progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--gold), #e8c98a);
+    border-radius: 10px;
+    width: 0%;
+    transition: width 0.4s ease;
+  }
+  #counters {
+    display: flex; gap: 14px; font-size: 13px; font-weight: 500;
+    white-space: nowrap;
+  }
+  #cnt-correct { color: var(--green); }
+  #cnt-wrong { color: var(--red); }
+  #cnt-total { color: var(--muted); }
+
+  /* ── DOT TRAIL ── */
+  #dot-trail {
+    max-width: 860px; margin: 0 auto;
+    display: flex; flex-wrap: wrap; gap: 5px;
+    padding: 8px 24px 4px;
+  }
+  .trail-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.15);
+    transition: all 0.3s;
+    cursor: pointer;
+  }
+  .trail-dot.answered-correct { background: var(--green); border-color: var(--green); }
+  .trail-dot.answered-wrong { background: var(--red); border-color: var(--red); }
+  .trail-dot.current { border-color: var(--gold); box-shadow: 0 0 6px var(--gold-glow); }
+
+  /* ── MAIN LAYOUT ── */
+  #main {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 130px 24px 80px;
+  }
+
+  /* ── TITLE CARD ── */
+  #title-card {
+    text-align: center;
+    padding: 48px 32px 40px;
+    margin-bottom: 32px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    position: relative;
+    overflow: hidden;
+  }
+  #title-card::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  }
+  .exam-label {
+    font-size: 11px; font-weight: 600; letter-spacing: 3px;
+    color: var(--gold); text-transform: uppercase; margin-bottom: 12px;
+  }
+  #title-card h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.2rem; line-height: 1.2;
+    color: var(--text); margin-bottom: 10px;
+  }
+  #title-card p {
+    color: var(--muted); font-size: 14px; line-height: 1.6;
+    max-width: 520px; margin: 0 auto 24px;
+  }
+  .start-btn {
+    background: linear-gradient(135deg, var(--gold), #a8833d);
+    color: #0f0e0c;
+    border: none; cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 600; font-size: 15px;
+    padding: 14px 40px;
+    border-radius: 8px;
+    letter-spacing: 0.5px;
+    transition: all 0.2s;
+    box-shadow: 0 4px 20px rgba(201,169,110,0.3);
+  }
+  .start-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 28px rgba(201,169,110,0.4); }
+
+  /* ── QUESTION CARD ── */
+  .q-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 32px;
+    margin-bottom: 24px;
+    position: relative;
+    overflow: hidden;
+    animation: slideIn 0.35s ease;
+  }
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(18px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .q-card::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    opacity: 0.4;
+  }
+  .q-meta {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 18px;
+  }
+  .q-num {
+    font-size: 12px; font-weight: 600; color: var(--muted); letter-spacing: 1px;
+  }
+  .cat-pill {
+    font-size: 10px; font-weight: 600; letter-spacing: 1.5px;
+    text-transform: uppercase; padding: 3px 10px;
+    border-radius: 20px;
+  }
+  .cat-theory { background: rgba(123,158,201,0.15); color: var(--theory); border: 1px solid rgba(123,158,201,0.3); }
+  .cat-methods { background: rgba(176,123,201,0.15); color: var(--methods); border: 1px solid rgba(176,123,201,0.3); }
+  .cat-application { background: rgba(201,146,110,0.15); color: var(--application); border: 1px solid rgba(201,146,110,0.3); }
+  .q-text {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem; line-height: 1.65;
+    color: var(--text); margin-bottom: 24px;
+  }
+  .options { display: flex; flex-direction: column; gap: 10px; }
+  .opt-btn {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px;
+    padding: 13px 18px;
+    text-align: left;
+    cursor: pointer;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px; line-height: 1.5;
+    transition: all 0.2s;
+    display: flex; gap: 12px; align-items: flex-start;
+  }
+  .opt-btn:hover:not(:disabled) {
+    background: var(--gold-dim);
+    border-color: var(--gold);
+    transform: translateX(3px);
+  }
+  .opt-letter {
+    font-weight: 700; color: var(--gold);
+    min-width: 20px; font-size: 13px;
+    margin-top: 1px;
+  }
+  .opt-btn.correct {
+    background: var(--green-bg) !important;
+    border-color: var(--green) !important;
+  }
+  .opt-btn.correct .opt-letter { color: var(--green) !important; }
+  .opt-btn.wrong {
+    background: var(--red-bg) !important;
+    border-color: var(--red) !important;
+  }
+  .opt-btn.wrong .opt-letter { color: var(--red) !important; }
+  .opt-btn.highlight-correct {
+    background: var(--gold-dim) !important;
+    border-color: var(--gold) !important;
+  }
+  .opt-btn.highlight-correct .opt-letter { color: var(--gold) !important; }
+  .opt-btn:disabled { cursor: default; }
+
+  /* ── EXPLANATION PANEL ── */
+  .explanation {
+    margin-top: 20px;
+    background: var(--card2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 22px 24px;
+    display: none;
+    animation: fadeIn 0.3s ease;
+  }
+  @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+  .explanation.show { display: block; }
+  .verdict-row {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 16px;
+  }
+  .verdict-badge {
+    font-size: 11px; font-weight: 700; letter-spacing: 1.5px;
+    text-transform: uppercase; padding: 4px 12px;
+    border-radius: 20px;
+  }
+  .verdict-correct { background: var(--green-bg); color: var(--green); border: 1px solid var(--green); }
+  .verdict-wrong { background: var(--red-bg); color: var(--red); border: 1px solid var(--red); }
+  .exp-section { margin-bottom: 14px; }
+  .exp-label {
+    font-size: 10px; font-weight: 600; letter-spacing: 2px;
+    text-transform: uppercase; color: var(--gold);
+    margin-bottom: 5px;
+  }
+  .exp-text { font-size: 13.5px; line-height: 1.65; color: var(--text); }
+  .exp-source {
+    display: inline-block;
+    font-size: 11.5px; color: var(--muted);
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 6px; padding: 4px 10px;
+    margin-top: 2px;
+  }
+  .exp-tip {
+    background: var(--gold-dim);
+    border-left: 3px solid var(--gold);
+    padding: 10px 14px;
+    border-radius: 0 8px 8px 0;
+    font-size: 13px; color: var(--text);
+    line-height: 1.5;
+  }
+  .exp-tip strong { color: var(--gold); }
+
+  /* ── NAV BUTTONS ── */
+  .q-nav {
+    display: flex; justify-content: flex-end;
+    margin-top: 20px;
+  }
+  .nav-btn {
+    background: linear-gradient(135deg, var(--gold), #a8833d);
+    color: #0f0e0c;
+    border: none; cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 600; font-size: 14px;
+    padding: 11px 28px;
+    border-radius: 8px;
+    transition: all 0.2s;
+    display: none;
+  }
+  .nav-btn.show { display: block; }
+  .nav-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(201,169,110,0.3); }
+
+  /* ── RESULTS SCREEN ── */
+  #results-screen {
+    display: none;
+    animation: slideIn 0.4s ease;
+  }
+  .results-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 48px 40px;
+    text-align: center;
+    position: relative; overflow: hidden;
+  }
+  .results-card::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  }
+  .results-score {
+    font-family: 'Playfair Display', serif;
+    font-size: 5rem; font-weight: 700;
+    color: var(--gold);
+    line-height: 1;
+    margin: 16px 0 8px;
+    text-shadow: 0 0 40px rgba(201,169,110,0.3);
+  }
+  .results-label {
+    font-size: 12px; font-weight: 600; letter-spacing: 3px;
+    text-transform: uppercase; color: var(--muted);
+    margin-bottom: 32px;
+  }
+  .stats-row {
+    display: flex; justify-content: center; gap: 40px;
+    margin-bottom: 36px;
+  }
+  .stat-item { text-align: center; }
+  .stat-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem; font-weight: 700;
+  }
+  .stat-num.green { color: var(--green); }
+  .stat-num.red { color: var(--red); }
+  .stat-lbl { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .cat-breakdown {
+    display: flex; gap: 16px; justify-content: center;
+    margin-bottom: 36px; flex-wrap: wrap;
+  }
+  .cat-stat {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    padding: 16px 22px;
+    text-align: center;
+    min-width: 140px;
+  }
+  .cat-stat-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.6rem; font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .cat-stat-lbl { font-size: 11px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; }
+  .eval-box {
+    background: var(--card2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px 28px;
+    text-align: left;
+    margin-bottom: 24px;
+  }
+  .eval-box h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem; color: var(--gold);
+    margin-bottom: 14px;
+  }
+  .eval-item {
+    display: flex; gap: 10px;
+    margin-bottom: 10px; font-size: 14px; line-height: 1.6;
+  }
+  .eval-icon { flex-shrink: 0; margin-top: 2px; }
+  .retry-btn {
+    background: transparent;
+    border: 1px solid var(--gold);
+    color: var(--gold);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 600; font-size: 14px;
+    padding: 12px 32px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .retry-btn:hover {
+    background: var(--gold-dim);
+  }
+
+  /* ── HIDDEN STATE ── */
+  #exam-container { display: none; }
+  #exam-container.active { display: block; }
+  #title-card.hidden { display: none; }
+</style>
+</head>
+<body>
+
+<!-- STICKY HEADER -->
+<div id="sticky-header">
+  <div id="header-inner">
+    <div id="progress-wrap"><div id="progress-bar"></div></div>
+    <div id="counters">
+      <span id="cnt-correct">✓ 0</span>
+      <span id="cnt-wrong">✗ 0</span>
+      <span id="cnt-total">0 / 50</span>
+    </div>
+  </div>
+  <div id="dot-trail"></div>
+</div>
+
+<div id="main">
+  <!-- TITLE CARD -->
+  <div id="title-card">
+    <div class="exam-label">Erasmus University Rotterdam · International Psychology</div>
+    <h1>🧠 Moral Development<br/><em style="font-weight:400;font-size:1.5rem;">Mock Exam — EUR Straight-A Challenge</em></h1>
+    <p>50 questions drawn exclusively from the assigned chapter on Moral Development (Sandrock). Randomised difficulty. One correct answer per question. Instant feedback after each selection.</p>
+    <button class="start-btn" onclick="startExam()">Begin Exam →</button>
+  </div>
+
+  <!-- EXAM CONTAINER -->
+  <div id="exam-container">
+    <div id="q-display"></div>
+    <div id="results-screen"></div>
+  </div>
+</div>
+
+<script>
+const QUESTIONS = [
+  {
+    q: "According to the chapter, moral development involves changes in which three domains?",
+    opts: ["Cognition, personality, and social skills","Thoughts, feelings, and behaviors","Reasoning, language, and memory","Emotion, identity, and culture"],
+    ans: 1,
+    cat: "theory",
+    why: "The chapter opens with a precise definition: moral development 'involves changes in thoughts, feelings, and behaviors regarding standards of right and wrong.' This three-part definition is foundational and recurs throughout the chapter.",
+    trap: "Option A lists plausible psychological constructs but none appear in the definition. Option C substitutes 'reasoning' and 'memory' — cognitive subterms not used in the definition. Option D mixes emotional and identity language not part of the core definition.",
+    source: "What Is Moral Development? — p. 359",
+    tip: "When a definition is given verbatim in a chapter, that exact wording is the only defensible answer. Always memorise the textbook's own definitions rather than paraphrasing."
+  },
+  {
+    q: "Piaget's first stage of moral development — heteronomous morality — typically occurs between which ages?",
+    opts: ["2 to 5 years","4 to 7 years","7 to 10 years","10 to 12 years"],
+    ans: 1,
+    cat: "theory",
+    why: "The chapter explicitly states: 'From 4 to 7 years of age, children display heteronomous morality, the first stage of moral development in Piaget's theory.'",
+    trap: "Option A (2–5) is a common error — confusing the age range with Piaget's preoperational stage. Option C (7–10) describes the transition period. Option D (10–12) describes autonomous morality.",
+    source: "Moral Thought — Piaget's Theory — p. 360",
+    tip: "Piaget's moral stages have precise age ranges. Memorise: heteronomous = 4–7, transition = 7–10, autonomous = ~10+."
+  },
+  {
+    q: "A 6-year-old insists her classmate should be punished more severely for accidentally knocking over 10 books than another child who knocked over 1 book on purpose. Which concept from Piaget's theory BEST explains this reasoning?",
+    opts: ["Autonomous morality — she focuses on the actor's intentions","Immanent justice — she expects automatic, unavoidable punishment","Heteronomous morality — she judges rightness by consequences rather than intentions","Social conventional reasoning — she is applying arbitrary classroom rules"],
+    ans: 2,
+    cat: "application",
+    why: "The chapter states: 'Because young children are heteronomous moralists, they judge the rightness or goodness of behavior by considering its consequences, not the intentions of the actor. For example, to the heteronomous moralist, breaking twelve cups accidentally is worse than breaking one cup intentionally.' This vignette directly mirrors that example.",
+    trap: "Option A is the opposite — autonomous morality focuses on intentions, but this child ignores intent. Option B (immanent justice) concerns expectations of automatic punishment, not consequence-based judgment. Option D invokes social-cognitive domain theory, which is a separate framework.",
+    source: "Moral Thought — Piaget's Theory — p. 360",
+    tip: "Vignettes about children judging based on outcomes (not intent) = heteronomous morality. Vignettes involving children judging by intent = autonomous morality."
+  },
+  {
+    q: "According to the chapter, which of the following BEST describes what the Heinz dilemma is primarily used for in Kohlberg's research?",
+    opts: ["To measure a child's emotional response to injustice","To assess the nature of moral thought through a series of questions about a moral dilemma","To evaluate whether children distinguish moral from social conventional rules","To determine whether children are in Piaget's heteronomous or autonomous stage"],
+    ans: 1,
+    cat: "methods",
+    why: "The chapter states that 'Kohlberg arrived at his view after 20 years of using a unique interview with children. In the interview, children are presented with a series of stories in which characters face moral dilemmas.' The purpose is explicitly to investigate the nature of moral thought.",
+    trap: "Option A focuses on emotion — but the Heinz dilemma targets reasoning, not emotional measurement. Option C describes social-cognitive domain theory methodology. Option D describes Piaget's methodology, not Kohlberg's.",
+    source: "Moral Thought — Kohlberg's Theory — p. 361",
+    tip: "Kohlberg's method is interview-based, focused on moral reasoning (the 'why' behind decisions), not emotional or behavioral measurement."
+  },
+  {
+    q: "In Kohlberg's theory, development from one moral stage to another is PRIMARILY fostered by:",
+    opts: ["Biological maturation alone","Direct adult instruction in moral rules and consequences","Opportunities to take the perspective of others and to experience conflict between current moral reasoning and higher-stage arguments","Consistent parental reinforcement of prosocial behavior at home"],
+    ans: 2,
+    cat: "theory",
+    why: "The chapter explicitly states: 'Kohlberg is fostered by opportunities to take the perspective of others and to experience conflict between one's current stage of moral thinking and the reasoning of someone at a higher stage.'",
+    trap: "Option A (biological maturation alone) is incorrect — Kohlberg acknowledged cognitive development does not ensure moral advancement. Option B suggests adult instruction, but Kohlberg argued peers are more critical than adults. Option D is a behavioral/reinforcement explanation, not Kohlberg's cognitive-developmental view.",
+    source: "Kohlberg's Theory — p. 361",
+    tip: "Always link Kohlberg to cognitive conflict + perspective-taking as the engine of development, NOT adult authority or reinforcement."
+  },
+  {
+    q: "In Kohlberg's Stage 2 — Individualism, Instrumental Purpose, and Exchange — what is the defining characteristic of moral reasoning?",
+    opts: ["Children obey adults because adults tell them to","Individuals pursue their own interests but also allow others to do the same in equal exchange","Individuals value trust, caring, and loyalty as the basis for moral judgments","Moral judgments are based on maintaining social order, law, and duty"],
+    ans: 1,
+    cat: "theory",
+    why: "The chapter states: 'Stage 2. Individualism, instrumental purpose, and exchange is the second stage of Kohlberg's theory. At this stage, individuals pursue their own interests but also let others do the same. Thus, what is right involves an equal exchange.'",
+    trap: "Option A describes Stage 1 (punishment and obedience). Option C describes Stage 3 (mutual interpersonal expectations). Option D describes Stage 4 (social systems morality).",
+    source: "Moral Thought — Kohlberg's Theory, Stage 2 — p. 361",
+    tip: "Map each Kohlberg stage to its core motivation: Stage 1 = fear of punishment; Stage 2 = self-interest + reciprocity; Stage 3 = being 'good'; Stage 4 = law and order."
+  },
+  {
+    q: "According to longitudinal data cited in the chapter (Colby & others, 1983), which stage of moral reasoning was reflected in the thinking of 62% of 36-year-olds?",
+    opts: ["Stage 3","Stage 4","Stage 5","Stage 6"],
+    ans: 1,
+    cat: "methods",
+    why: "The chapter states that Stage 4 'was reflected in the moral thinking of 62 percent of the 36-year-olds' in the Colby et al. longitudinal study (Figure 13.2).",
+    trap: "Stage 3 is most common among adolescents, not 36-year-olds. Stage 5 did not appear until age 20–22 and never exceeded 10%. Stage 6 was absent in the data.",
+    source: "Moral Thought — Kohlberg's Theory, Figure 13.2 — p. 362",
+    tip: "Know the Colby et al. longitudinal findings: Stage 3 peaks in adolescence; Stage 4 dominates adulthood; Stage 5 is rare; Stage 6 absent."
+  },
+  {
+    q: "Which theorist proposed that there are six stages of moral development organised into three hierarchical levels?",
+    opts: ["Jean Piaget","Carol Gilligan","Lawrence Kohlberg","Judith Smetana"],
+    ans: 2,
+    cat: "theory",
+    why: "Lawrence Kohlberg proposed six stages of moral development organised into three levels: preconventional, conventional, and postconventional. This is attributed explicitly throughout the chapter.",
+    trap: "Piaget proposed two stages (heteronomous/autonomous), not six. Gilligan critiqued Kohlberg but did not propose six stages. Smetana proposed social-cognitive domain theory, a wholly different framework.",
+    source: "Moral Thought — Kohlberg's Theory — p. 361",
+    tip: "Know your theorists by their signature claim: Piaget = 2 stages; Kohlberg = 6 stages, 3 levels; Gilligan = care perspective; Smetana = domain theory."
+  },
+  {
+    q: "A researcher argues that Kohlberg's scoring system fails to recognise the moral reasoning of Buddhist monks in Nepal, whose concerns about preventing suffering and the role of compassion are central to their moral views. This critique MOST directly supports which criticism?",
+    opts: ["Kohlberg overemphasised moral behavior at the expense of moral thought","Kohlberg's theory is culturally biased and misconstrues important moral concepts in particular cultures","Kohlberg underestimated the role of peer relations in moral development","Kohlberg's stages do not occur in a fixed sequential order"],
+    ans: 1,
+    cat: "application",
+    why: "The chapter presents this Nepal monk example explicitly to illustrate cultural bias: 'The monks' concerns about prevention of suffering and the role of compassion are not captured by Kohlberg's theory' because they are not based on principles of justice. This directly exemplifies the cultural bias critique.",
+    trap: "Option A (moral behavior vs. thought) is a separate, valid critique but not what the monk example illustrates. Option C concerns the role of peer relations — unrelated to this scenario. Option D concerns stage sequence — also unrelated.",
+    source: "Moral Thought — Kohlberg's Critics: Culture and Moral Reasoning — p. 363–364",
+    tip: "When a vignette involves non-Western moral reasoning not captured by Kohlberg's scoring, the correct answer is almost always 'cultural bias.' Match the construct to the critique."
+  },
+  {
+    q: "Carol Gilligan's 'care perspective' contrasts with Kohlberg's 'justice perspective' PRIMARILY in that the care perspective:",
+    opts: ["Views moral reasoning as universal across all cultures","Emphasises the rights of the individual and independent moral decision-making","Views people in terms of their connectedness with others, emphasising interpersonal communication, relationships, and concern for others","Focuses exclusively on punishment and obedience as the foundation of morality"],
+    ans: 2,
+    cat: "theory",
+    why: "The chapter states: 'In contrast to Kohlberg's justice perspective... Gilligan argues for a care perspective, a moral perspective that views people in terms of their connectedness with others and emphasizes interpersonal communication, relationships with others, and concern for others.'",
+    trap: "Option A (universality) is associated with Kohlberg's claim about stages, not Gilligan's care perspective. Option B describes the justice perspective — the opposite of the care perspective. Option D describes Stage 1 (preconventional) reasoning — unrelated.",
+    source: "Moral Thought — Gender and the Care Perspective — p. 364",
+    tip: "Justice perspective = individual rights, independence. Care perspective = connectedness, relationships, concern for others. These are definitionally opposite."
+  },
+  {
+    q: "A researcher observes that very few 7-year-olds were willing to donate money after watching a UNICEF film on children suffering from poverty, but after gentle probing by an adult, most donated some money. This finding is MOST consistent with which perspective?",
+    opts: ["Kohlberg's preconventional reasoning — children act purely from self-interest","The situational determinants of moral behavior","Piaget's autonomous morality — children weigh intentions alongside consequences","Bandura's moral competence — children possess the ability but lack motivation without adult scaffolding"],
+    ans: 1,
+    cat: "application",
+    why: "The chapter cites this exact study: 'a recent study found that very few 7-year-olds were willing to donate any money after watching a UNICEF film... however, after gentle probing by an adult, most children were willing to donate some of their money.' This is presented within the discussion of situational determinants of morality — context shapes whether children act morally.",
+    trap: "Option A (preconventional self-interest) does not explain why adult probing changes behaviour. Option C (autonomous morality) is Piaget's cognitive stage, not a situational explanation. Option D misuses Bandura's competence/performance distinction — the chapter doesn't frame this example that way.",
+    source: "Moral Behavior — Basic Processes, Situational Determinants — p. 365–366",
+    tip: "When a research finding shows moral behaviour changing with context or probing, the answer is almost always 'situational determinants,' not a stage theory."
+  },
+  {
+    q: "Which of the following statements about gender differences in moral reasoning is BEST supported by the evidence cited in the chapter?",
+    opts: ["Females consistently show higher levels of care-based reasoning than males across all situations","The sex difference in care-based reasoning is greater in childhood than in adolescence","A meta-analysis found only a small sex difference in moral judgment, with differences better explained by the nature of the dilemma than by gender","Experts now agree that Kohlberg significantly downplayed females' moral thinking"],
+    ans: 2,
+    cat: "methods",
+    why: "The chapter cites a meta-analysis (Jaffee & Hyde, 2000): 'only a small sex difference in moral judgment favoring females. When differences occurred, they were better explained by the nature of the dilemma than by gender.' Additionally: 'experts now conclude that there is no evidence to support Gilligan's claim that Kohlberg downplayed females' moral thinking.'",
+    trap: "Option A says 'consistently' and 'across all situations' — the meta-analysis found only small, context-dependent differences. Option B reverses the finding — the difference was greater in adolescence, not childhood. Option D is directly contradicted by the chapter's conclusion.",
+    source: "Moral Thought — Gender and the Care Perspective — p. 365",
+    tip: "Watch for 'always'/'consistently' qualifiers. The meta-analysis finding is specifically small and context-dependent — reject any option that overstates gender differences."
+  },
+  {
+    q: "The 'social cognitive theory of morality' distinguishes between:",
+    opts: ["Heteronomous and autonomous moral reasoning","The justice perspective and the care perspective","Moral competence — the ability to produce moral behaviors — and moral performance — using those behaviors in specific situations","Moral thought and moral feeling"],
+    ans: 2,
+    cat: "theory",
+    why: "The chapter states: 'The social cognitive theory of morality emphasizes a distinction between an individual's moral competence (the ability to perform moral behaviors) and moral performance (performing those behaviors in specific situations).'",
+    trap: "Option A is Piaget's distinction. Option B is Gilligan's critique of Kohlberg. Option D (thought vs. feeling) is a domain distinction made throughout the chapter but is not the defining feature of social cognitive theory.",
+    source: "Moral Behavior — Social Cognitive Theory — p. 366",
+    tip: "Social cognitive theory of morality = competence vs. performance. Link Bandura to self-regulation and the competence/performance split."
+  },
+  {
+    q: "According to Albert Bandura's social cognitive theory, what is the key mechanism through which self-regulation functions in moral development?",
+    opts: ["Following rules handed down by all-powerful authorities without question","Adopting parents' moral standards and seeking to be seen as a 'good girl' or 'good boy'","Monitoring one's own conduct, judging it in relation to moral standards, and regulating actions by the self-applied consequences","Basing moral decisions entirely on fear of punishment from external authorities"],
+    ans: 2,
+    cat: "theory",
+    why: "The chapter states: 'people monitor their conduct and the conditions under which it occurs, judge it in relation to moral standards, and regulate their actions by the consequences they apply to themselves.' Self-regulation is internal, not reliant on external authorities.",
+    trap: "Option A describes heteronomous morality (Piaget). Option B describes Stage 3 reasoning (Kohlberg) — being 'good' in others' eyes. Option D describes Stage 1 preconventional reasoning — fear of punishment.",
+    source: "Moral Behavior — Social Cognitive Theory (Bandura) — p. 366",
+    tip: "Bandura's self-regulation = internal process (self-monitoring + self-applied consequences). External authority or fear = Piaget/Kohlberg, NOT Bandura."
+  },
+  {
+    q: "Hartshorne and May's (1928–1930) classic investigation of 11,000 children is MOST relevant to which aspect of moral development?",
+    opts: ["The role of guilt as the foundation of moral behavior","The situational dependence of moral behavior — children were inconsistent across home, school, and athletic contexts","The universal sequence of Kohlberg's moral stages across populations","The relationship between empathy and prosocial behavior in middle childhood"],
+    ans: 1,
+    cat: "methods",
+    why: "The chapter describes Hartshorne and May's study as revealing that 'behavior was situationally dependent. Children were more likely to cheat when their friends put pressure on them and when the chance of being caught was slim... situation-specific behavior was the rule.' This is the foundational demonstration of situational moral inconsistency.",
+    trap: "Option A (guilt) relates to psychoanalytic theory and Kochanska's work — a different part of the chapter. Option C (Kohlberg stages) uses a completely different methodology. Option D (empathy) relates to Damon and Eisenberg, not Hartshorne and May.",
+    source: "Moral Behavior — Basic Processes — p. 365–366",
+    tip: "Hartshorne & May = the classic study showing that moral behaviour varies by situation. It refutes the idea of a single stable moral trait."
+  },
+  {
+    q: "According to Piaget, heteronomous thinkers believe that if a rule is broken, punishment will be meted out immediately. What is the specific term for this concept?",
+    opts: ["Autonomous justice","Immanent justice","Reciprocal punishment","Heteronomous consequence"],
+    ans: 1,
+    cat: "theory",
+    why: "The chapter defines immanent justice as 'Piaget's concept of the childhood expectation that if a rule is broken, punishment will be meted out immediately.' It is explicitly described as a belief held by heteronomous thinkers.",
+    trap: "Option A (autonomous justice) inverts the concept — the chapter says autonomous children recognize that punishment occurs only if someone witnesses the wrongdoing. Options C and D do not exist in the chapter's terminology.",
+    source: "Moral Thought — Piaget's Theory — p. 360",
+    tip: "Immanent = built-in, inevitable. 'Immanent justice' = the child's belief that breaking a rule automatically triggers punishment. This is a vocabulary-specific recall question."
+  },
+  {
+    q: "In Piaget's theory, what was the primary source of moral understanding that he argued advances children beyond heteronomous morality?",
+    opts: ["Direct instruction from all-powerful adult authorities","The mutual give-and-take of peer relations, where plans are negotiated and disagreements are reasoned about","Biological maturation driving cognitive advances","Emotional experiences of guilt and shame following transgressions"],
+    ans: 1,
+    cat: "theory",
+    why: "The chapter states: 'Piaget reasoned that this social understanding comes about through the mutual give-and-take of peer relations. In the peer group, where others have power and status similar to the child's, plans are negotiated and coordinated, and disagreements are reasoned about and eventually settled. Parent-child relations... are less likely to advance moral reasoning because rules are often handed down in an authoritarian way.'",
+    trap: "Option A (adult authority) is the opposite — Piaget argued that parent-child authority relations are less likely to advance moral reasoning. Option C (biological maturation) is relevant to cognitive development but Piaget argued it does not ensure moral reasoning development. Option D (guilt/shame) relates to Freud and Kochanska, not Piaget.",
+    source: "Moral Thought — Piaget's Theory — p. 360",
+    tip: "Piaget (and Kohlberg) both privilege peer relations over parent-child authority for moral advancement. This is a classic distinguishing point."
+  },
+  {
+    q: "William Damon (1988) described a stage of empathy occurring at ages 1 to 2 years, characterised by which of the following?",
+    opts: ["Global empathy — the infant cannot distinguish between self and others' feelings","Undifferentiated feelings of discomfort at another's distress, but an inability to translate concern into effective action","Awareness that each person's perspective is unique and different reactions to situations are possible","An emergent orientation of empathy toward people living in unfortunate circumstances"],
+    ans: 1,
+    cat: "theory",
+    why: "According to Figure 13.3 and the surrounding text, at 1–2 years of age: 'Undifferentiated feelings of discomfort at another's distress grow into more genuine feelings of concern, but infants cannot translate realization of other's unhappy feelings into effective action.' Option A describes early infancy (global empathy), not the 1–2 year period.",
+    trap: "Option A (global empathy) describes early infancy — before 1 year. Option C describes early childhood. Option D describes the 10–12 year stage.",
+    source: "Moral Feeling — Empathy, Figure 13.3 — p. 367–368",
+    tip: "Know all four of Damon's empathy stages by age: infancy (global), 1–2 yrs (undifferentiated concern), early childhood (perspective awareness), 10–12 yrs (concern for the marginalised)."
+  },
+  {
+    q: "A psychology student argues: 'Corrupt CEOs and politicians often endorse the loftiest moral virtues in public while their own behaviour later proves highly immoral.' This argument directly targets which weakness of Kohlberg's theory identified in the chapter?",
+    opts: ["The cultural bias in Kohlberg's scoring system","Kohlberg's overemphasis on moral thought at the expense of moral behavior","The failure of Kohlberg's theory to incorporate a care perspective","The limited applicability of the dilemma method beyond Western male samples"],
+    ans: 1,
+    cat: "application",
+    why: "The chapter states: 'Kohlberg's theory has been criticized for placing too much emphasis on moral thought and not enough emphasis on moral behavior (Walker, 2004). Moral reasons can sometimes be a shelter for immoral behavior. Corrupt CEOs and politicians endorse the loftiest of moral virtues in public until their own behavior is exposed.' This vignette directly paraphrases the chapter's own example.",
+    trap: "Option A (cultural bias) is a valid Kohlberg critique but is not what this vignette illustrates. Option C (care perspective) concerns Gilligan's gender critique. Option D concerns methodological limitations, not the thought-behaviour gap.",
+    source: "Moral Thought — Kohlberg's Critics: Moral Thought and Moral Behavior — p. 363",
+    tip: "The gap between moral thought and moral action is its own distinct critique of Kohlberg, separate from cultural bias or gender bias."
+  },
+  {
+    q: "According to the chapter, moral identity is defined as:",
+    opts: ["The set of virtues a person aspires to demonstrate in public situations","The aspect of personality present when moral notions and commitments are central to an individual's life","The ability to persist in moral behavior despite distractions and obstacles","The capacity to monitor one's own thoughts and engage in self-control when needed"],
+    ans: 1,
+    cat: "theory",
+    why: "The chapter defines moral identity as 'the aspect of personality that is present when individuals have moral notions and commitments that are central to their lives.'",
+    trap: "Option A describes virtues from Walker's (2002) research — related but not the definition of moral identity. Option C describes moral character (James Rest, 1995). Option D describes moral self-monitoring — a component of moral metacognition.",
+    source: "Moral Personality — Moral Identity — p. 368",
+    tip: "Know the three moral personality constructs: moral identity (central commitments), moral character (persisting through obstacles), moral exemplars (lived extraordinary lives)."
+  },
+  {
+    q: "Piaget observed that when he suggested young children use new rules in a game of marbles, they resisted, whereas older children accepted the change. This observation BEST illustrates which contrast?",
+    opts: ["Heteronomous thinkers believe rules are created by people; autonomous thinkers believe rules come from nature","Heteronomous thinkers view rules as unchangeable and handed down by powerful authorities; autonomous thinkers recognise rules as conventions subject to change","Heteronomous thinkers are more likely to engage in peer negotiation than autonomous thinkers","Autonomous thinkers believe violations always result in immediate punishment; heteronomous thinkers do not"],
+    ans: 1,
+    cat: "application",
+    why: "The chapter states: 'When Piaget suggested to young children that they use new rules in a game of marbles, they resisted. By contrast, older children — moral autonomists — accept change and recognize that rules are merely convenient conventions, subject to change.' This directly illustrates that heteronomous thinkers treat rules as fixed and immutable, while autonomous thinkers understand rules as changeable social constructs.",
+    trap: "Option A inverts the direction — heteronomous thinkers believe rules come from powerful authorities (externally imposed), not that rules are created by people. Option C reverses the pattern. Option D describes immanent justice, which relates to punishment expectations, not rule-change attitudes.",
+    source: "Moral Thought — Piaget's Theory — p. 360",
+    tip: "Rule mutability is the key distinguisher: heteronomous = fixed, unchangeable; autonomous = conventional, changeable. Always link this to the marbles example."
+  },
+  {
+    q: "According to James Rest's (1995) view, moral character primarily involves:",
+    opts: ["Having a moral identity so strong that one never yields to temptation","Reasoning consistently at Kohlberg's Stage 4 or higher","Having strong convictions, persisting, and overcoming distractions and obstacles","Demonstrating empathy as measured by Damon's four developmental milestones"],
+    ans: 2,
+    cat: "theory",
+    why: "The chapter states: 'In James Rest's (1995) view, moral character involves having strong convictions, persisting, and overcoming distractions and obstacles.' The text also notes that without moral character, individuals may 'wilt under pressure or fatigue, fail to follow through, or become distracted and discouraged.'",
+    trap: "Option A describes moral identity (central commitments), not moral character. Option B links to Kohlberg stage level — not how Rest defines moral character. Option D describes Damon's empathy framework — a separate construct.",
+    source: "Moral Personality — Moral Character — p. 368–369",
+    tip: "Moral character = perseverance and resolve. Moral identity = moral notions central to self. These are two distinct constructs in the 'moral personality' section."
+  },
+  {
+    q: "A 10-year-old begins feeling empathy for people she has never met — those who are poor, handicapped, or socially marginalised — rather than only for people whose distress she directly observes. According to Damon's developmental framework, which stage does this represent?",
+    opts: ["1 to 2 years of age — undifferentiated concern","Early childhood — awareness that perspectives differ across individuals","10 to 12 years — emergent orientation toward people in unfortunate circumstances","Early infancy — global empathy undifferentiated from self"],
+    ans: 2,
+    cat: "application",
+    why: "The chapter and Figure 13.3 state that at 10–12 years: 'Children develop an emergent orientation of empathy for people who live in unfortunate circumstances — those who are poor, the handicapped, and the social outcast... children's concerns are no longer limited to the feelings of specific persons in situations they directly observe.'",
+    trap: "Options A and D describe earlier infancy stages. Option B (early childhood) describes perspective awareness within direct interactions, not the expansion to people one has never met.",
+    source: "Moral Feeling — Empathy, Figure 13.3 — p. 367–368",
+    tip: "The shift from concrete to abstract empathy — from known individuals to unknown marginalised groups — is the hallmark of Damon's 10–12 year stage."
+  },
+  {
+    q: "According to cross-cultural research on Kohlberg's theory cited in the chapter, which specific finding is described?",
+    opts: ["All six stages were confirmed in all 27 cultures studied","A review of 45 studies in 27 cultures provided support for the universality of the first four stages","Cross-cultural research found stage 5 reasoning more common in non-Western than Western cultures","Cultural variation proved moral development is entirely culture-specific, undermining the stage model"],
+    ans: 1,
+    cat: "methods",
+    why: "The chapter states: 'One review of 45 studies in 27 cultures around the world, mostly non-European, provided support for the universality of Kohlberg's first four stages (Snarey, 1987).' Stages 5 and 6 were not found in all cultures.",
+    trap: "Option A overstates — all six stages were NOT confirmed universally. Option C reverses the finding about stage 5. Option D is the most extreme claim — cultural variation challenges but does not entirely undermine the model.",
+    source: "Moral Thought — Kohlberg's Critics: Culture and Moral Reasoning — p. 363–364",
+    tip: "The cross-cultural finding is partial support: first four stages appear universal; stages 5–6 are culture-dependent. Never claim 'all six stages' have cross-cultural support."
+  },
+  {
+    q: "Lawrence Walker's research on moral exemplars examined three types — brave, caring, and just. Which personality trait characterised ALL three types, suggesting a possible core of moral functioning?",
+    opts: ["Being dominant and extraverted","Being nurturant and agreeable","Being conscientious and open to experience","Being honest and dependable"],
+    ans: 3,
+    cat: "methods",
+    why: "The chapter states: 'a number of traits characterized all three moral exemplars, considered by the researchers to reflect a possible core of moral functioning. This core included being honest and dependable.'",
+    trap: "Option A describes the brave exemplar specifically. Option B describes the caring exemplar specifically. Option C describes the just exemplar specifically. Only Option D applied to all three.",
+    source: "Moral Personality — Moral Exemplars, Walker & Hennig (2004) — p. 369",
+    tip: "When a question asks what is common to ALL groups in a study, look for the trait listed as shared — not the trait belonging to a specific subgroup."
+  },
+  {
+    q: "According to Figure 13.3 in the chapter, which description BEST characterises the nature of empathy during 'Early Childhood'?",
+    opts: ["Global empathy — the infant's response does not distinguish between the feelings of self and others","Undifferentiated discomfort at another's distress, but the inability to translate this into effective action","Awareness that every person's perspective is unique, and that someone else may have a different reaction to a situation","An emergent orientation toward the poor, the handicapped, and social outcasts"],
+    ans: 2,
+    cat: "theory",
+    why: "Figure 13.3 describes Early Childhood empathy as: 'Children become aware that every person's perspective is unique and that someone else may have a different reaction to a situation. This awareness allows the child to respond more appropriately to another person's distress.'",
+    trap: "Option A describes early infancy (global empathy). Option B describes the 1–2 year stage. Option D describes the 10–12 year stage. Each Damon stage has a unique description — careful not to confuse adjacent stages.",
+    source: "Moral Feeling — Empathy, Figure 13.3 — p. 367",
+    tip: "In Figure 13.3 questions, match the age period to the exact nature-of-empathy description. Early childhood = perspective awareness, not just discomfort."
+  },
+  {
+    q: "Researchers attempted to advance moral reasoning by presenting arguments one stage above the participant's established level. What did the chapter report was the key finding from these studies?",
+    opts: ["Only plus-two-stage discussions produced significant moral advancement","Virtually any plus-stage discussion, for any length of time, seemed to promote more advanced moral reasoning","Plus-stage discussions were only effective when facilitated by adult authority figures","Plus-stage discussions produced temporary regression to lower stages before eventual advancement"],
+    ans: 1,
+    cat: "methods",
+    why: "The chapter states: 'The upshot of studies using this approach is that virtually any plus-stage discussion, for any length of time, seems to promote more advanced moral reasoning (Walker, 1982).'",
+    trap: "Option A (plus-two only) is a plausible-sounding but incorrect qualifier. Option C contradicts the chapter — which emphasises peer relations over adult authority. Option D describes a regression effect not mentioned in the chapter.",
+    source: "Moral Thought — Influences on the Kohlberg Stages — p. 363",
+    tip: "The 'plus-stage discussion' finding is notable for its breadth: ANY plus-stage discussion helps. Avoid answers that add restrictions ('only,' 'adult-facilitated') not in the text."
+  },
+  {
+    q: "Judith Smetana is PRIMARILY associated with which theoretical contribution to the field of moral development?",
+    opts: ["The care perspective and its critique of Kohlberg's gender bias","Social-cognitive domain theory, proposing distinct domains of moral, social conventional, and personal reasoning","The social cognitive theory of morality distinguishing moral competence from moral performance","The concept of postconventional reasoning as the highest level of moral development"],
+    ans: 1,
+    cat: "theory",
+    why: "The chapter states: 'Judith Smetana (2011a, b; 2013a, b; Smetana & Smetana, 2012) has proposed social-cognitive domain theory, which states that there are different domains of social knowledge and reasoning, including moral, social conventional, and personal domains.'",
+    trap: "Option A is Carol Gilligan's contribution. Option C is attributed to Bandura and Mischel (social cognitive theory of morality). Option D is Kohlberg's contribution.",
+    source: "Social-Cognitive Domain Theory — p. 369",
+    tip: "Attribute each theory to its correct theorist: Gilligan = care perspective; Smetana = domain theory; Bandura = social cognitive theory of morality."
+  },
+  {
+    q: "Social conventional reasoning, according to social-cognitive domain theory, focuses on:",
+    opts: ["Ethical issues and rules of morality that are obligatory, widely accepted, and impersonal","Conventional rules established by social consensus in order to control behaviour and maintain the social system","Personal issues involving control over one's body, privacy, and choice of friends","Universal human rights that undergird or transcend the laws of society"],
+    ans: 1,
+    cat: "theory",
+    why: "The chapter states: 'Social conventional reasoning focuses on conventional rules that have been established by social consensus in order to control behavior and maintain the social system.'",
+    trap: "Option A describes moral reasoning (obligatory, widely accepted, impersonal). Option C describes the personal domain. Option D describes Stage 5 postconventional reasoning (Kohlberg) — not domain theory.",
+    source: "Social-Cognitive Domain Theory — p. 369",
+    tip: "In domain theory: social conventional = arbitrary, consensus-based, changeable. Moral = obligatory, impersonal, serious. Personal = self-governed, not subject to rules."
+  },
+  {
+    q: "Which of the following is NOT an example of social conventional reasoning as described in the chapter?",
+    opts: ["Raising your hand in class before speaking","Using one staircase to go up and another to go down","Not cutting in front of someone standing in line to buy movie tickets","Refraining from lying, cheating, and stealing"],
+    ans: 3,
+    cat: "application",
+    why: "The chapter explicitly states that lying, cheating, and stealing reside 'in the moral domain' because violation of these rules 'affronts ethical standards that exist apart from social consensus and convention.' All other options — raising your hand, staircase rules, and line etiquette — are examples of social conventional rules cited in the chapter.",
+    trap: "Options A, B, and C are all given as social conventional examples in the chapter. Option D (lying, cheating, stealing) appears as examples of moral rules, not conventional ones — making it the exception.",
+    source: "Social-Cognitive Domain Theory — p. 369–370",
+    tip: "'EXCEPT/NOT' questions require identifying the outlier. Moral rules (lying, stealing) are distinct from conventional rules (queuing, staircase direction) even when they feel similar."
+  },
+  {
+    q: "According to the chapter, which of the following MOST accurately describes the intrapersonal dimension of moral development?",
+    opts: ["It regulates social interactions and arbitrates conflict between individuals","It governs a person's activities when she or he is not engaged in social interaction","It focuses exclusively on the cognitive aspects of moral reasoning","It is primarily shaped by peer relations rather than parent-child relationships"],
+    ans: 1,
+    cat: "theory",
+    why: "The chapter states: 'Moral development has an intrapersonal dimension, which regulates a person's activities when she or he is not engaged in social interaction, and an interpersonal dimension, which regulates social interactions and arbitrates conflict.'",
+    trap: "Option A describes the interpersonal dimension — not the intrapersonal. Options C and D describe other aspects of moral development but do not define the intrapersonal dimension as given in the chapter.",
+    source: "What Is Moral Development? — p. 359",
+    tip: "Intrapersonal = inner regulation (when alone). Interpersonal = social regulation (with others). These are directly swappable traps — always check which word is in the question."
+  },
+  {
+    q: "A study cited in the chapter examined children ages 2½ to 4 years old and found they could distinguish moral from conventional transgressions on many criteria. Which source is cited for this finding?",
+    opts: ["Hartshorne and May (1928–1930)","Colby and others (1983)","Smetana and others (2012)","Kochanska and Askan (2007)"],
+    ans: 2,
+    cat: "methods",
+    why: "The chapter states: 'In a recent study of 2½- to 4-year-olds, children distinguished moral from conventional transgressions on many criteria, but only older preschoolers did so when rating whether others deserved punishment (Smetana & others, 2012).'",
+    trap: "Hartshorne & May studied 11,000 older children on situational moral behaviour. Colby et al. (1983) conducted the Kohlberg longitudinal study. Kochanska's work focused on conscience development and guilt.",
+    source: "Social-Cognitive Domain Theory — p. 370",
+    tip: "Attribute research findings to their correct source. Smetana is consistently linked to domain theory and preschool moral/conventional distinction research."
+  },
+  {
+    q: "According to the chapter, which of the following MOST accurately describes the relationship between moral competence and moral performance?",
+    opts: ["Moral competence and moral performance are identical constructs measuring the same underlying capacity","Moral competence is sufficient to guarantee moral performance in most real-world situations","Moral competence refers to what individuals are capable of doing, while moral performance is determined by motivation and rewards in specific situations","Moral performance always precedes the development of moral competence in children's development"],
+    ans: 2,
+    cat: "theory",
+    why: "The chapter defines: 'Moral competence is the outgrowth of cognitive-sensory processes. Moral performance, or behavior, however, is determined by motivation and the rewards and incentives to act in a specific moral way.'",
+    trap: "Option A conflates two distinct constructs. Option B uses the word 'sufficient' — a classic trap qualifier — which the chapter does not support; competence alone does not guarantee performance. Option D reverses the developmental logic entirely.",
+    source: "Moral Behavior — Social Cognitive Theory — p. 366",
+    tip: "Competence ≠ sufficient condition for performance. Performance requires motivation + situational rewards. 'Sufficient' is a dangerous qualifier in this context."
+  },
+  {
+    q: "Darcia Narváez (2010) concluded that a mature moral individual engages in 'moral metacognition.' Which of the following MOST accurately describes this concept as presented in the chapter?",
+    opts: ["Only monitoring one's own thoughts and engaging in self-control when moral regulation is needed","Both moral self-monitoring and moral self-reflection — the latter involving critical evaluation of one's self-judgments and efforts to minimise bias and self-deception","The ability to reason at Kohlberg's postconventional level while maintaining conventional-level behaviour","Perspective-taking skills that allow understanding of others' moral frameworks across cultures"],
+    ans: 1,
+    cat: "application",
+    why: "The chapter states: 'Mature moral individuals engage in metacognition, including moral self-monitoring and moral self-reflection... Moral self-reflection encompasses critical evaluations of one's self-judgments and efforts to minimize bias and self-deception.' This includes BOTH components, not only self-monitoring.",
+    trap: "Option A uses 'only' — a trap qualifier — and omits self-reflection. The chapter explicitly describes two components. Option C mixes Kohlberg stage levels with metacognition. Option D is perspective-taking — a Kohlberg-related concept, not Narváez's metacognition.",
+    source: "Moral Personality — Moral Identity (Narváez, 2010) — p. 368",
+    tip: "'Only' is almost always a trap qualifier when the text clearly lists two components. Always check whether a concept has multiple parts before accepting a single-component answer."
+  },
+  {
+    q: "According to the chapter, in Kohlberg's Stage 5 — Social Contract or Utility and Individual Rights — individuals reason that:",
+    opts: ["Rules created by parents and authority figures must be obeyed","Trust, caring, and loyalty are the foundations for moral judgment","Values, rights, and principles undergird or transcend the law","Maintaining social order, law, justice, and duty is the basis for moral decisions"],
+    ans: 2,
+    cat: "theory",
+    why: "The chapter states: 'At this stage, individuals reason that values, rights, and principles undergird or transcend the law. A person evaluates the validity of actual laws and examines social systems in terms of the degree to which they preserve and protect fundamental human rights and values.'",
+    trap: "Option A describes Stage 1 (punishment/obedience). Option B describes Stage 3 (mutual interpersonal expectations). Option D describes Stage 4 (social systems morality).",
+    source: "Moral Thought — Kohlberg's Theory, Stage 5 — p. 362",
+    tip: "Stage 5 = laws can be evaluated against higher principles of rights and values. Stage 4 = law is the foundation. This is the key difference between conventional and postconventional."
+  },
+  {
+    q: "A 13-year-old boy convicted of violently mugging elderly victims, when asked about the pain he caused a blind woman, replied: 'What do I care? I'm not her.' The chapter cites this example to illustrate which of the following?",
+    opts: ["The dominance of preconventional reasoning in adolescent delinquents","How empathic dysfunctions in some delinquents can contribute to antisocial behaviour","The failure of social conventional reasoning to regulate antisocial conduct","The role of moral identity deficits in adolescent criminal behaviour"],
+    ans: 1,
+    cat: "application",
+    why: "The chapter introduces this example under the discussion of empathy, stating: 'Some delinquents convicted of violent crimes show a lack of feeling for their victims' distress. A 13-year-old boy convicted of violently mugging a number of older adults, when asked about the pain he had caused one blind woman, said, \"What do I care? I'm not her\" (Damon, 1988).' This is an illustration of empathic dysfunction.",
+    trap: "Option A links preconventional reasoning to the behaviour, but the chapter uses this example specifically to illustrate empathy failure, not stage-level reasoning. Option C and D introduce concepts not linked to this example in the chapter.",
+    source: "Moral Feeling — Empathy (adolescent empathic dysfunction) — p. 368",
+    tip: "Always identify which section of the chapter an example appears in. If it appears in the 'Empathy' section, the answer is about empathy — not moral reasoning stages."
+  },
+  {
+    q: "According to the chapter, the effectiveness of modeling for the child's moral development depends PRIMARILY on which two factors?",
+    opts: ["The age of the child and the type of moral behavior being modeled","The characteristics of the model and the cognitive skills of the observer","The frequency of modeled behavior and the presence of peer reinforcement","The consistency of parental discipline and the child's temperament"],
+    ans: 1,
+    cat: "methods",
+    why: "The chapter states: 'The effectiveness of modeling depends on the characteristics of the model and the cognitive skills of the observer. For example, if a parent models giving a donation to a charity, her child must be old enough to understand this behavior in order for it to have an impact on the child's moral development.'",
+    trap: "Option A lists age and behaviour type — age is partially captured in the chapter example but the explicit factor is cognitive skills of the observer. Option C (frequency + peer reinforcement) does not appear as the primary factors. Option D (discipline consistency + temperament) relates to Kochanska's work on guilt, not modeling effectiveness.",
+    source: "Moral Behavior — Basic Processes — p. 365",
+    tip: "When the chapter gives a specific example to illustrate a principle (the charity donation example), use that context to identify the exact factors — model characteristics + observer cognitive skills."
+  },
+  {
+    q: "A study of 20 adolescent male Buddhist monks in Nepal found that the monks' concerns about preventing suffering and compassion were central to their moral views. The chapter uses this example to argue that Kohlberg's system:",
+    opts: ["Successfully captures the highest-level moral reasoning across all world cultures","Would score these concerns at the highest postconventional level because they are principles-based","Does not capture these moral concerns because they are not based on principles of justice","Only applies to Western, individually-oriented cultural contexts and was never meant to be universal"],
+    ans: 2,
+    cat: "application",
+    why: "The chapter states: 'The monks' concerns about prevention of suffering and the role of compassion are not captured by Kohlberg's theory' because the monks' moral views are not based on principles of justice — which is the cornerstone of Kohlberg's scoring. Therefore they would NOT be scored at the highest level despite being sophisticated moral views.",
+    trap: "Option A is directly contradicted by the example. Option B sounds plausible — the concerns ARE principled — but the key is that Kohlberg's system scores based on JUSTICE principles, not compassion/suffering prevention. Option D overstates the critique.",
+    source: "Moral Thought — Culture and Moral Reasoning — p. 364",
+    tip: "Kohlberg's highest stages are based on JUSTICE. Compassion-based moral reasoning, however sophisticated, is not automatically scored at the highest level in Kohlberg's system."
+  },
+  {
+    q: "According to the chapter's discussion of Kohlberg's longitudinal findings, which of the following statements about Stage 6 is MOST accurate?",
+    opts: ["Stage 6 is the most common form of reasoning among adults over age 30","Stage 6 has been entirely removed from the Kohlberg moral judgment scoring system and is no longer considered theoretically important","Although Stage 6 has been removed from the scoring manual, it is still considered theoretically important in the Kohlberg scheme","Stage 6 reasoning was observed in approximately 10% of individuals by age 22"],
+    ans: 2,
+    cat: "methods",
+    why: "The chapter states: 'Although stage 6 has been removed from the Kohlberg moral judgment scoring manual, it still is considered to be theoretically important in the Kohlberg scheme of moral development.'",
+    trap: "Option A contradicts the data — Stage 4 dominates adulthood; Stage 6 was 'absent.' Option B uses 'no longer considered theoretically important' — the chapter explicitly says the opposite. Option D exaggerates Stage 6 prevalence — it was absent in the longitudinal data.",
+    source: "Moral Thought — Kohlberg's Theory (Stage 6 data) — p. 362–363",
+    tip: "Stage 6 = removed from scoring manual BUT still theoretically important. Watch for traps that conflate 'removed from scoring' with 'theoretically irrelevant.'"
+  },
+  {
+    q: "According to the chapter, Ross Thompson (2012) elaborated on the view that young children are not as egocentric as Piaget envisioned. Thompson argued that:",
+    opts: ["Young children are fundamentally egocentric and show no awareness of others' goals until age 7","Young children possess cognitive resources that allow them to be aware of others' intentions and know when someone violates a moral prohibition","Young children's moral understanding is entirely dependent on immanent justice beliefs","Young children are unable to distinguish between moral and social conventional transgressions before age 7"],
+    ans: 1,
+    cat: "theory",
+    why: "The chapter states: 'Thompson (2012) further elaborated on this view, arguing that recent research indicates that young children often show a non-egocentric awareness of others' goals, feelings, and desires and how such internal states are influenced by the actions of others. These ties between advances in moral understanding and theory of mind indicate that young children possess cognitive resources that allow them to be aware of others' intentions and to know when someone violates a moral prohibition.'",
+    trap: "Option A is the Piagetian view that Thompson is arguing against — this is the distractor. Option C links Thompson's argument to immanent justice — not supported by the text. Option D associates Thompson with domain theory age limits — also unsupported.",
+    source: "Moral Thought — Piaget's Theory (Thompson, 2012) — p. 360–361",
+    tip: "When a theorist is described as 'challenging' or 'elaborating against' a prior view, the correct answer is the CHALLENGE, not the original view being disputed."
+  },
+  {
+    q: "According to the chapter, Kohlberg argued that family processes are essentially unimportant to children's moral development. His stated reasoning was that:",
+    opts: ["Parents are too emotionally involved to facilitate objective moral reasoning","Parent-child relations typically provide little opportunity for give-and-take or perspective-taking, unlike peer relations","Children at the conventional level have already internalised moral standards through earlier peer interactions","Research consistently shows family values have no measurable impact on children's moral stage progression"],
+    ans: 1,
+    cat: "theory",
+    why: "The chapter states: 'Kohlberg argued that family processes are essentially unimportant in children's moral development... parent-child relationships usually provide children with little opportunity for give-and-take or perspective taking. Rather, Kohlberg said that such opportunities are more likely to be provided by children's peer relations.'",
+    trap: "Option A offers an emotional reason for parental ineffectiveness — not what the chapter says. Option C introduces a sequencing claim not present in the text. Option D overstates Kohlberg's claim — the chapter doesn't say research 'consistently shows' this.",
+    source: "Moral Thought — Kohlberg's Critics: Families and Moral Development — p. 364",
+    tip: "Kohlberg's reason for dismissing family influence is structural: parent-child relations are authority-based and offer little peer-like perspective-taking. This is about opportunity, not emotional involvement."
+  },
+  {
+    q: "In Kochanska and colleagues' research cited in the chapter, which additional findings about guilt were reported beyond the gender difference?",
+    opts: ["Children of authoritative parents displayed the highest levels of guilt","Children with a more fearful temperament expressed more guilt, and children of mothers who used power-oriented discipline displayed less guilt","Girls showed guilt primarily through verbal apology, while boys showed it through behavioural reparation","Guilt was observed only in children over age 5, not in preschool-aged children"],
+    ans: 1,
+    cat: "methods",
+    why: "The chapter states: 'Children with a more fearful temperament expressed more guilt. Children of mothers who used power-oriented discipline (such as spanking, slapping, and yelling) displayed less guilt.'",
+    trap: "Option A (authoritative parenting) is plausible given parenting research but is not what the chapter reports — the relevant variable was power-oriented (authoritarian) discipline. Options C and D introduce details not present in the chapter.",
+    source: "Moral Feeling — Psychoanalytic Theory (Kochanska's research) — p. 367",
+    tip: "Map the specific research finding precisely: power-oriented discipline = less guilt; fearful temperament = more guilt. Don't substitute 'authoritative' for 'power-oriented' — these are different parenting constructs."
+  },
+  {
+    q: "The social conventional approach poses a serious challenge to Kohlberg's theory primarily because:",
+    opts: ["It argues that moral reasoning is entirely relative to cultural context, with no universal stages","It proposes that social conventional reasoning is not lower than postconventional reasoning but something that needs to be disentangled from the moral thread","It demonstrates that all children begin at the preconventional level before transitioning to conventional reasoning","It shows that moral development cannot be validly measured using dilemma-based interviews"],
+    ans: 1,
+    cat: "application",
+    why: "The chapter states: 'The social conventional approach is a serious challenge to Kohlberg's approach because Kohlberg argued that social conventions are a stopover on the road to higher moral sophistication. For social conventional reasoning advocates, social conventional reasoning is not lower than postconventional reasoning but rather something that needs to be disentangled from the moral thread.'",
+    trap: "Option A describes cultural relativism — a valid critique but not the primary challenge described here. Option C describes Kohlberg's own stage progression logic, not a critique of it. Option D criticises methodology — not the theoretical challenge in this section.",
+    source: "Social-Cognitive Domain Theory — p. 370",
+    tip: "The domain theory challenge to Kohlberg is specifically about the status of social conventional reasoning — it's NOT a lower form of morality, it's a separate domain entirely."
+  },
+  {
+    q: "According to the chapter, which of the following MOST accurately characterises the relationship between the intrapersonal and interpersonal dimensions of moral development?",
+    opts: ["The intrapersonal dimension regulates social interactions, while the interpersonal dimension governs internal behaviour","Both dimensions operate independently without influencing each other in moral development","The intrapersonal dimension regulates activities when not engaged in social interaction; the interpersonal dimension regulates social interactions and arbitrates conflict","The interpersonal dimension is more fundamental to moral development than the intrapersonal dimension"],
+    ans: 2,
+    cat: "application",
+    why: "The chapter states: 'Moral development has an intrapersonal dimension, which regulates a person's activities when she or he is not engaged in social interaction, and an interpersonal dimension, which regulates social interactions and arbitrates conflict (Walker, 2006).'",
+    trap: "Option A reverses the definitions — intrapersonal and interpersonal are switched. Option B claims independence, but the chapter does not state this. Option D makes a hierarchical claim not present in the text.",
+    source: "What Is Moral Development? — p. 359",
+    tip: "Intra = within the person; inter = between people. Always check whether the question has swapped these prefixes — it is a classic trap in this chapter."
+  },
+  {
+    q: "According to the chapter, personal issues in social-cognitive domain theory — such as control over one's body, privacy, and choice of friends — are BEST characterised as:",
+    opts: ["Governed by moral strictures that are obligatory and widely accepted","Subject to social conventional rules established by social consensus","Belonging to a personal domain not governed by moral strictures or social norms","Equivalent to moral rules in terms of the seriousness of violations when breached"],
+    ans: 2,
+    cat: "theory",
+    why: "The chapter states: 'personal issues include control over one's body, privacy, and choice of friends and activities. Thus, some actions belong to a personal domain not governed by moral strictures or social norms.'",
+    trap: "Option A describes the moral domain. Option B describes the social conventional domain. Option D makes a claim about equivalence in seriousness — not supported; the chapter states violating moral rules is 'usually more serious.'",
+    source: "Social-Cognitive Domain Theory — p. 370",
+    tip: "Three domains in Smetana's theory: moral (obligatory, ethical), social conventional (consensus-based, arbitrary), personal (self-governed, private). Each has distinct characteristics."
+  },
+  {
+    q: "According to the chapter, which of the following MOST accurately describes the key concept of progression through Kohlberg's levels and stages?",
+    opts: ["Children's biological maturation drives cognitive advances in moral reasoning","The person's morality gradually becomes more internal or mature","Peer rejection forces children to reconsider their existing moral beliefs","Cultural transmission of shared moral values ensures progression through stages"],
+    ans: 1,
+    cat: "theory",
+    why: "The chapter states: 'A key concept in understanding progression through the levels and stages is that the person's morality gradually becomes more internal or mature. That is, their reasons for moral decisions or values begin to go beyond the external or superficial reasons they gave when they were younger.'",
+    trap: "Option A (biological maturation) is explicitly countered — the chapter notes Kohlberg 'argued that advances in children's cognitive development did not ensure development of moral reasoning.' Option C (peer rejection) is not a stated mechanism. Option D (cultural transmission) contradicts Kohlberg's universalist claim about individual cognitive development.",
+    source: "Moral Thought — Kohlberg's Theory — p. 362",
+    tip: "The key progression principle = moral reasoning moves from external (superficial) to internal (mature). This applies across all three Kohlberg levels."
+  },
+  {
+    q: "According to the chapter, Kohlberg emphasised which factor as a critical aspect of social stimulation that challenges children to change their moral reasoning?",
+    opts: ["Parental instruction in moral principles through direct dialogue","Perspective-taking, which gives children the opportunity to take another's perspective and to generate rules democratically","Religious instruction instilling universal ethical principles","Experience of guilt following transgression, which motivates upward stage movement"],
+    ans: 1,
+    cat: "theory",
+    why: "The chapter states: 'Kohlberg stressed that in principle, encounters with any peers can produce perspective-taking opportunities that may advance a child's moral reasoning.' And: 'Kohlberg stressed that perspective taking are critical aspects of the social stimulation that challenges children to change their moral reasoning.'",
+    trap: "Option A (parental instruction) is downplayed by Kohlberg as less effective than peer interaction. Option C (religious instruction) is not cited as Kohlberg's mechanism. Option D (guilt) belongs to psychoanalytic theory, not Kohlberg's cognitive-developmental framework.",
+    source: "Moral Thought — Influences on the Kohlberg Stages — p. 363",
+    tip: "Kohlberg = perspective-taking via peer interaction. Any answer that credits adults or emotions as Kohlberg's primary mechanism is likely wrong."
+  },
+  {
+    q: "According to the chapter's description of moral self-reflection — one component of moral metacognition (Narváez, 2010) — this concept specifically encompasses:",
+    opts: ["Monitoring one's thoughts and actions related to moral self-regulation and engaging self-control when needed","Critical evaluations of one's own self-judgments and efforts to minimise bias and self-deception","Developing a moral identity so that moral notions become central to one's personality","Reasoning at Kohlberg's postconventional level while maintaining consistency between thought and behaviour"],
+    ans: 1,
+    cat: "application",
+    why: "The chapter states: 'Moral self-reflection encompasses critical evaluations of one's self-judgments and efforts to minimize bias and self-deception.' This is specifically the self-reflection component, distinct from self-monitoring.",
+    trap: "Option A describes moral self-monitoring — the other component of metacognition. The question specifically asks about self-reflection. Options C and D are different constructs from elsewhere in the chapter.",
+    source: "Moral Personality — Moral Identity (Narváez, 2010) — p. 368",
+    tip: "Moral metacognition has TWO distinct parts: self-monitoring (tracking thoughts/actions) and self-reflection (critical evaluation of self-judgments). Know which is which."
+  },
+  {
+    q: "A study cited in the chapter found that a higher level of multicultural experience was linked to a growth mindset and higher moral judgment. Which source does the chapter cite for this finding?",
+    opts: ["Gibbs and others (2007)","Narváez and Hill (2010)","Tappan (2013)","Smetana (2013)"],
+    ans: 1,
+    cat: "methods",
+    why: "The chapter states: 'A recent study explored links between culture, mindset, and moral judgment (Narváez & Hill, 2010). In this study, a higher level of multicultural experience was linked to closed-mindedness (being cognitively inflexible), a growth mindset... and higher moral judgment.'",
+    trap: "Gibbs et al. (2007) is cited for the review of perspective-taking and moral judgment. Tappan (2013) is cited in the culture and moral reasoning critique. Smetana is associated with domain theory, not this multicultural mindset study.",
+    source: "Moral Thought — Culture and Moral Reasoning (Narváez & Hill, 2010) — p. 364",
+    tip: "Attribution questions require matching the specific finding (multicultural experience + growth mindset + moral judgment) to its correct source. Build a citation map for each key finding."
+  },
+  {
+    q: "According to the chapter, which of the following MOST accurately characterises the relationship between moral rules and social conventional rules in social-cognitive domain theory?",
+    opts: ["Both moral and social conventional rules are arbitrary, established by social consensus, and can be changed","Moral rules are obligatory, widely accepted, and somewhat impersonal; violating them is generally considered more serious than violating conventional rules","Social conventional rules are more binding than moral rules because they are enforced by social sanctions","Moral rules and social conventional rules are equivalent in terms of the seriousness with which children judge violations"],
+    ans: 1,
+    cat: "application",
+    why: "The chapter states: 'Unlike conventional rules, moral rules are not arbitrary. They are obligatory, widely accepted, and somewhat impersonal.' And: 'Violating moral rules is usually more serious than violating conventional rules.'",
+    trap: "Option A incorrectly attributes arbitrariness to moral rules — only conventional rules are arbitrary. Option C reverses the hierarchy of seriousness. Option D claims equivalence — directly contradicted by 'usually more serious.'",
+    source: "Social-Cognitive Domain Theory — p. 370",
+    tip: "Moral rules = non-arbitrary, obligatory, impersonal, serious. Social conventional rules = arbitrary, consensus-based, can be changed, less serious. Never equate them."
+  }
+];
+
+// Category assignment
+const CAT_MAP = [
+  "theory","theory","application","methods","theory","theory","methods","theory","application","theory",
+  "application","methods","theory","theory","methods","theory","theory","theory","application","theory",
+  "application","theory","application","methods","methods","theory","methods","theory","theory","application",
+  "theory","methods","theory","application","theory","application","methods","application","methods","theory",
+  "theory","methods","application","application","theory","theory","theory","application","methods","application"
+];
+
+let current = 0;
+let correct = 0;
+let wrong = 0;
+let answered = new Array(50).fill(null); // null | true | false
+let started = false;
+
+// Cat counters
+let catStats = {
+  theory: {total:0, correct:0},
+  methods: {total:0, correct:0},
+  application: {total:0, correct:0}
+};
+
+// Build dot trail
+function buildDots() {
+  const trail = document.getElementById('dot-trail');
+  trail.innerHTML = '';
+  for (let i = 0; i < QUESTIONS.length; i++) {
+    const d = document.createElement('div');
+    d.className = 'trail-dot' + (i === current ? ' current' : '');
+    d.title = 'Q' + (i+1);
+    d.onclick = () => { if (answered[i] !== null) jumpTo(i); };
+    trail.appendChild(d);
+  }
+}
+
+function updateDot(idx, isCorrect) {
+  const dots = document.querySelectorAll('.trail-dot');
+  dots[idx].classList.remove('current');
+  dots[idx].classList.add(isCorrect ? 'answered-correct' : 'answered-wrong');
+}
+
+function setCurrentDot(idx) {
+  const dots = document.querySelectorAll('.trail-dot');
+  dots.forEach(d => d.classList.remove('current'));
+  if (dots[idx]) dots[idx].classList.add('current');
+}
+
+function startExam() {
+  document.getElementById('title-card').classList.add('hidden');
+  document.getElementById('exam-container').classList.add('active');
+  started = true;
+  buildDots();
+  renderQuestion(0);
+}
+
+function renderQuestion(idx) {
+  current = idx;
+  setCurrentDot(idx);
+  const q = QUESTIONS[idx];
+  const cat = CAT_MAP[idx];
+  const catLabel = {theory:'Theory', methods:'Methods', application:'Application'}[cat];
+  const catClass = 'cat-' + cat;
+
+  const html = `
+    <div class="q-card" id="qcard">
+      <div class="q-meta">
+        <span class="q-num">QUESTION ${idx+1} OF 50</span>
+        <span class="cat-pill ${catClass}">${catLabel}</span>
+      </div>
+      <div class="q-text">${q.q}</div>
+      <div class="options" id="options">
+        ${q.opts.map((o,i) => `
+          <button class="opt-btn" id="opt${i}" onclick="selectAnswer(${i})">
+            <span class="opt-letter">${['A','B','C','D'][i]}</span>
+            <span>${o}</span>
+          </button>
+        `).join('')}
+      </div>
+      <div class="explanation" id="explanation"></div>
+      <div class="q-nav">
+        <button class="nav-btn" id="next-btn" onclick="nextQuestion()">
+          ${idx < 49 ? 'Next Question →' : 'See Results →'}
+        </button>
+      </div>
+    </div>
+  `;
+  document.getElementById('q-display').innerHTML = html;
+
+  // If already answered (review mode)
+  if (answered[idx] !== null) {
+    restoreAnswered(idx);
+  }
+}
+
+function selectAnswer(chosen) {
+  if (answered[current] !== null) return;
+  const q = QUESTIONS[current];
+  const isCorrect = chosen === q.ans;
+  answered[current] = isCorrect;
+
+  // Update stats
+  const cat = CAT_MAP[current];
+  catStats[cat].total++;
+  if (isCorrect) { correct++; catStats[cat].correct++; }
+  else { wrong++; }
+
+  updateDot(current, isCorrect);
+  updateCounters();
+  showFeedback(chosen, q.ans, q, isCorrect);
+  document.getElementById('next-btn').classList.add('show');
+  document.querySelectorAll('.opt-btn').forEach(b => b.disabled = true);
+}
+
+function restoreAnswered(idx) {
+  // Just re-enable next button for review
+  document.getElementById('next-btn').classList.add('show');
+  document.querySelectorAll('.opt-btn').forEach(b => b.disabled = true);
+}
+
+function showFeedback(chosen, correct_idx, q, isCorrect) {
+  const letters = ['A','B','C','D'];
+  const btns = document.querySelectorAll('.opt-btn');
+  btns[correct_idx].classList.add('correct');
+  if (!isCorrect) {
+    btns[chosen].classList.add('wrong');
+  }
+  const exp = document.getElementById('explanation');
+  exp.classList.add('show');
+  exp.innerHTML = `
+    <div class="verdict-row">
+      <span class="verdict-badge ${isCorrect ? 'verdict-correct' : 'verdict-wrong'}">${isCorrect ? '✓ Correct' : '✗ Incorrect'}</span>
+      <span style="color:var(--muted);font-size:13px;">${isCorrect ? 'Well reasoned.' : 'Correct answer: ' + letters[correct_idx]}</span>
+    </div>
+    <div class="exp-section">
+      <div class="exp-label">Why this answer is the only defensible choice</div>
+      <div class="exp-text">${q.why}</div>
+    </div>
+    <div class="exp-section">
+      <div class="exp-label">Distractor trap identified</div>
+      <div class="exp-text">${q.trap}</div>
+    </div>
+    <div class="exp-section">
+      <div class="exp-label">Source citation</div>
+      <span class="exp-source">📖 ${q.source}</span>
+    </div>
+    <div class="exp-section">
+      <div class="exp-tip"><strong>Exam tip:</strong> ${q.tip}</div>
+    </div>
+  `;
+  exp.scrollIntoView({behavior:'smooth', block:'nearest'});
+}
+
+function nextQuestion() {
+  if (current < 49) {
+    renderQuestion(current + 1);
+  } else {
+    showResults();
+  }
+  updateProgress();
+}
+
+function jumpTo(idx) {
+  renderQuestion(idx);
+}
+
+function updateCounters() {
+  document.getElementById('cnt-correct').textContent = '✓ ' + correct;
+  document.getElementById('cnt-wrong').textContent = '✗ ' + wrong;
+  const done = answered.filter(a => a !== null).length;
+  document.getElementById('cnt-total').textContent = done + ' / 50';
+  updateProgress();
+}
+
+function updateProgress() {
+  const done = answered.filter(a => a !== null).length;
+  document.getElementById('progress-bar').style.width = (done / 50 * 100) + '%';
+  document.getElementById('cnt-total').textContent = done + ' / 50';
+}
+
+function showResults() {
+  document.getElementById('q-display').innerHTML = '';
+  const total = answered.filter(a => a !== null).length;
+  const pct = total > 0 ? Math.round(correct / total * 100) : 0;
+  const grade = pct >= 90 ? 'Exceptional — A+ performance' :
+                pct >= 85 ? 'Excellent — A grade achieved' :
+                pct >= 75 ? 'Good — approaching A grade' :
+                pct >= 65 ? 'Satisfactory — B grade range' : 'Needs review — below pass threshold';
+
+  // Category scores
+  const thPct = catStats.theory.total > 0 ? Math.round(catStats.theory.correct / catStats.theory.total * 100) : 0;
+  const mePct = catStats.methods.total > 0 ? Math.round(catStats.methods.correct / catStats.methods.total * 100) : 0;
+  const apPct = catStats.application.total > 0 ? Math.round(catStats.application.correct / catStats.application.total * 100) : 0;
+
+  const weak = [];
+  const strong = [];
+  if (thPct >= 80) strong.push('theory recall'); else weak.push('theoretical definitions and stage models');
+  if (mePct >= 80) strong.push('research methods'); else weak.push('source attribution and methodological findings');
+  if (apPct >= 80) strong.push('applied reasoning'); else weak.push('vignette analysis and critical comparisons');
+
+  const evalHTML = `
+    <div class="eval-item"><span class="eval-icon">💪</span><span><strong>Strengths:</strong> ${strong.length > 0 ? 'You demonstrated solid command of ' + strong.join(' and ') + '.' : 'Focus on building core strengths across all categories.'}</span></div>
+    ${weak.length > 0 ? `<div class="eval-item"><span class="eval-icon">📚</span><span><strong>Areas for improvement:</strong> Revisit ${weak.join(' and ')}. Focus on source attribution, precise qualifier language, and distinguishing near-miss constructs.</span></div>` : '<div class="eval-item"><span class="eval-icon">🎓</span><span>Outstanding performance across all categories. You are exam-ready.</span></div>'}
+  `;
+
+  const rs = document.getElementById('results-screen');
+  rs.style.display = 'block';
+  rs.innerHTML = `
+    <div class="results-card">
+      <div class="exam-label">Exam Complete · Moral Development · EUR Psychology</div>
+      <div class="results-score">${pct}%</div>
+      <div class="results-label">${grade}</div>
+      <div class="stats-row">
+        <div class="stat-item"><div class="stat-num green">${correct}</div><div class="stat-lbl">Correct</div></div>
+        <div class="stat-item"><div class="stat-num red">${wrong}</div><div class="stat-lbl">Incorrect</div></div>
+        <div class="stat-item"><div class="stat-num" style="color:var(--gold)">${total}</div><div class="stat-lbl">Answered</div></div>
+      </div>
+      <div class="cat-breakdown">
+        <div class="cat-stat">
+          <div class="cat-stat-num" style="color:var(--theory)">${thPct}%</div>
+          <div class="cat-stat-lbl">Theory</div>
+        </div>
+        <div class="cat-stat">
+          <div class="cat-stat-num" style="color:var(--methods)">${mePct}%</div>
+          <div class="cat-stat-lbl">Methods</div>
+        </div>
+        <div class="cat-stat">
+          <div class="cat-stat-num" style="color:var(--application)">${apPct}%</div>
+          <div class="cat-stat-lbl">Application</div>
+        </div>
+      </div>
+      <div class="eval-box">
+        <h3>Professional Evaluation</h3>
+        ${evalHTML}
+      </div>
+      <button class="retry-btn" onclick="retryExam()">↺ Retry Exam</button>
+    </div>
+  `;
+  rs.scrollIntoView({behavior:'smooth'});
+}
+
+function retryExam() {
+  current = 0; correct = 0; wrong = 0;
+  answered = new Array(50).fill(null);
+  catStats = {theory:{total:0,correct:0},methods:{total:0,correct:0},application:{total:0,correct:0}};
+  document.getElementById('results-screen').style.display = 'none';
+  document.getElementById('results-screen').innerHTML = '';
+  document.getElementById('progress-bar').style.width = '0%';
+  document.getElementById('cnt-correct').textContent = '✓ 0';
+  document.getElementById('cnt-wrong').textContent = '✗ 0';
+  document.getElementById('cnt-total').textContent = '0 / 50';
+  buildDots();
+  renderQuestion(0);
+}
+</script>
+</body>
+</html>
